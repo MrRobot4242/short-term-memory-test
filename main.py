@@ -1,7 +1,7 @@
 #initialize modules
 import pygame
 import random
-from time import sleep 
+from sys import exit
 import math 
 from statistics import mean
 
@@ -30,6 +30,8 @@ loop_iteration = 1
 loop_iteration_list = [1]
 mainloop_iteration = 5
 display_percent_distance = False
+ui_images = {}
+symbols = {}
 
 
 
@@ -39,33 +41,39 @@ pygame.display.set_caption("My Game")
 
 
 # import images
-airport = pygame.image.load("airport.png").convert_alpha()
-background = pygame.image.load("Background.png").convert_alpha()
-bar = pygame.image.load("bar.png").convert_alpha()
-bus_station = pygame.image.load("bus station.png").convert_alpha()
-cafe = pygame.image.load("cafe.png").convert_alpha()
-camping_site = pygame.image.load("camping site.png").convert_alpha()
-church = pygame.image.load("church.png").convert_alpha()
-gas_station = pygame.image.load("gas station.png").convert_alpha()
-hospital = pygame.image.load("hospital.png").convert_alpha()
-information = pygame.image.load("information.png").convert_alpha()
-library = pygame.image.load("library.png").convert_alpha()
-post_office = pygame.image.load("post office.png").convert_alpha()
-restroom = pygame.image.load("restroom.png").convert_alpha()
-taxi_stand = pygame.image.load("taxi stand.png").convert_alpha()
-telephone = pygame.image.load("telephone.png").convert_alpha()
-train = pygame.image.load("Train.png").convert_alpha()
-where_was_it = pygame.image.load("where was it.png").convert_alpha()
-all_symbols = pygame.image.load("all symbols.png").convert_alpha()
-exclamation = pygame.image.load("exclamation.png").convert_alpha()
+ui_images_paths = ["background.png",
+                  "where was it.png",
+                  "all symbols.png",
+                  "exclamation.png"]
 
-images = [airport, bar, bus_station, cafe, camping_site, church,
-             gas_station, hospital, information, library, post_office, restroom,
-             taxi_stand, telephone, train]
+symbols_paths = ["airport.png",
+               "bar.png",
+               "bus station.png",
+               "cafe.png",
+               "camping site.png",
+               "church.png",
+               "gas station.png",
+               "hospital.png",
+               "information.png",
+               "library.png",
+               "post office.png",
+               "restroom.png",
+               "taxi stand.png",
+               "telephone.png",
+               "train.png"]
 
-images_names = ["the airport", "the bar", "the bus station", "the cafe", "the camping site", "the church",
-"the gas station", "the hospital", "the information center", "the library", "the post office", "the restroom",
-"the taxi stand", "the telephone", "the train station"]
+def load_images():
+    def load_images_to_dict(images_paths, out_dict):
+        for img_path in images_paths:
+            img_name = img_path.rsplit(".", 1)[0]   # base filename
+            out_dict[img_name] = pygame.image.load(img_path).convert_alpha()
+
+    load_images_to_dict(ui_images_paths, ui_images)
+    load_images_to_dict(symbols_paths, symbols)
+
+load_images()
+images = list(symbols.values())
+images_names = list(symbols.keys())
 
 images_number_equivalent = [i for i in range(15)]
 # end of importing images 
@@ -110,34 +118,35 @@ def wait_time(milliseconds):
     clock.tick(30)     
     elapsed_time = 0  # starter to count the time that passes in order not to have to stop the program
     #wait for x amount of seconds seconds 
+    pygame.display.update()
     while elapsed_time < milliseconds: # Display the image for x amount of seconds seconds
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-        pygame.display.update()
+                exit()
         elapsed_time += clock.tick(30)
 
 def wait_till_keypress():
+    pygame.display.update()
     keypress = False
     while keypress == False: # Display the image on screen until spacebar pressed
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                exit()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 keypress = True
-
-        pygame.display.update()
 
 
 
 # draws the where was this image screen
 def draw_where_was_it(j):
     screen.fill((255,255,255))   #fill white background
-    screen.blit(where_was_it, (x_where_is_it, y_where_is_it)) #draw the where was it picture 
+    screen.blit(ui_images["where was it"], (x_where_is_it, y_where_is_it)) #draw the where was it picture 
     screen.blit(images[random_image_coordinates[j][0]], (x_image, y_image)) #get a random number from the random images list and let that appear
    
     #draw text
-    text = font.render(images_names[random_image_coordinates[j][0]], True, (0, 0, 0))
+    text = font.render("the "+images_names[random_image_coordinates[j][0]], True, (0, 0, 0))
     text_x, text_y = text.get_size()
     screen.blit(text, (screen_width / 2 - text_x/2, screen_height / 2 + 50))
 
@@ -147,24 +156,25 @@ def draw_where_was_it(j):
 def drag_to_where_image_was(j):
     pygame.mouse.set_visible(True)
     mouse_click = pygame.mouse.get_pressed()
-    screen.blit(background, (0,0))
+    screen.blit(ui_images["background"], (0,0))
     
 
     while not mouse_click[0]: # Display the image for x amount of seconds seconds
-        screen.blit(background, (0,0))
+        screen.blit(ui_images["background"], (0,0))
         mouse_pos = pygame.mouse.get_pos()
 
         # default pygame if statement to break off programm while in while loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                exit()
 
         screen.blit(images[random_image_coordinates[j][0]], (mouse_pos[0]-30, mouse_pos[1]-30))   #constantly display image at current mouse coordinates -30 on each to have it in the middle of the mouse
         mouse_click = pygame.mouse.get_pressed()
         pygame.display.flip()   # update display 
 
 
-    screen.blit(exclamation, (random_image_coordinates[j][1])) # draw the exclamation point at the pos where the wanted image was displayed
+    screen.blit(ui_images["exclamation"], (random_image_coordinates[j][1])) # draw the exclamation point at the pos where the wanted image was displayed
 
     pygame.draw.circle(screen, (255,0,0), (random_image_coordinates[j][1][0]+30, random_image_coordinates[j][1][1]+30), 120, 3) # draws a red thin circle, at the coordianates of the 
     #exclamation point plus 30 to have it centered and the center isnt the top left corner
@@ -292,7 +302,8 @@ for i in range(mainloop_iteration):
     # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            pygame.quit()
+            exit()
             # Update the screen and track elapsed time
 
 
@@ -309,14 +320,14 @@ for i in range(mainloop_iteration):
 # display image of all pictures to find only on first iteration 
     if i == 0:
         screen.fill((255,255,255))
-        screen.blit(all_symbols, (90,90))
+        screen.blit(ui_images["all symbols"], (90,90))
         text_wait_space = font.render("press spacebar to continue", True, (0, 0, 0))
         screen.blit(text_wait_space, (400, 90))
         wait_till_keypress()
 
 
 #draw x amount of images images once and let them stay on screen for 6 seconds seconds
-    screen.blit(background, (0,0))
+    screen.blit(ui_images["background"], (0,0))
     display_images(number_img_displayed[img_num])
     wait_time(6000)
 
