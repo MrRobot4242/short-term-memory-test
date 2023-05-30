@@ -10,4 +10,8 @@ I would greatly appreciate any feedback on how to improve myself and my coding s
 
 To run this project, you will need Python and the provided images in this repository.
 
+To install the pip requirements run
+
+`pip install -r /path/to/requirements.txt`
+
 Have fun and enjoy!
